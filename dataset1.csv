@@ -1,0 +1,21 @@
+id,timestamp,text,source_url,source_type
+1,2025-11-26 15:03:00,Information disclosure vulnerability CVE-2023-93670 leaking sensitive data from educational institution servers.,http://cryptomarket2398.onion,blog
+2,2025-11-17 00:03:00,Privilege escalation exploit CVE-2020-80346 discovered in healthcare operating system.,http://hackforum3644.onion,chat
+3,2025-11-06 01:03:00,Zero-day exploit CVE-2023-98029 being sold on dark web forums for healthcare applications.,http://darkmarket4270.onion,forum
+4,2025-11-15 12:03:00,Critical vulnerability CVE-2024-1535 discovered in retail software allowing remote code execution.,http://deepforum6854.onion,marketplace
+5,2025-11-05 23:03:00,Keylogger malware StealthMiner found on compromised systems logging keystrokes and sending to http://malicious-site.ga/page94.,http://deepforum9624.onion,forum
+6,2025-11-24 10:03:00,Memory corruption bug CVE-2021-66655 in e-commerce library leads to arbitrary code execution.,http://deepforum2963.onion,marketplace
+7,2025-11-27 19:03:00,Brute force attack detected on social media login portal. Multiple failed attempts from 63.67.250.186.,http://deepforum4105.onion,marketplace
+8,2025-11-18 23:03:00,Privilege escalation exploit CVE-2022-51064 discovered in retail operating system.,http://darkmarket6194.onion,paste
+9,2025-11-23 14:03:00,Path traversal vulnerability CVE-2022-44528 in manufacturing web server allows file access.,http://darkmarket4940.onion,chat
+10,2025-11-07 09:03:00,Spear phishing emails sent to cryptocurrency exchange employees with malicious attachment photo.scr.,http://deepforum6875.onion,forum
+11,2025-11-27 06:03:00,Path traversal vulnerability CVE-2023-11104 in government web server allows file access.,http://cryptomarket4692.onion,paste
+12,2025-11-14 09:03:00,Memory corruption bug CVE-2021-28948 in financial institution library leads to arbitrary code execution.,http://hiddensite9308.onion,paste
+13,2025-11-02 23:03:00,Loader malware PhantomLoader downloading additional payloads from http://phishing-page.ml/page9.,http://cryptomarket3686.onion,paste
+14,2025-11-01 18:03:00,Massive DDoS attack detected against manufacturing infrastructure. Attack originated from botnet at 7.125.87.168.,http://hackforum4260.onion,forum
+15,2025-11-03 08:03:00,Brute force attack detected on educational institution login portal. Multiple failed attempts from 53.128.173.66.,http://deepforum6218.onion,paste
+16,2025-11-27 19:03:00,Massive DDoS attack detected against technology company infrastructure. Attack originated from botnet at 7.144.112.80.,http://darkmarket8636.onion,marketplace
+17,2025-11-12 04:03:00,SQL injection vulnerability being actively exploited on http://evil-domain.ga/page57. Attackers dumping database credentials.,http://darkmarket2972.onion,chat
+18,2025-11-12 13:03:00,Worm DeepStealer spreading through network shares and USB drives in manufacturing environment.,http://hiddensite1044.onion,forum
+19,2025-10-31 20:03:00,Password spray attack targeting manufacturing Active Directory from 20.227.149.64.,http://hiddensite2656.onion,chat
+20,2025-11-22 14:03:00,Remote Access Trojan NightSpy provides backdoor access to infected educational institution machines.,http://hackforum5877.onion,paste

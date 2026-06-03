@@ -1,0 +1,164 @@
+{% extends "base.html" %}
+
+{% block title %}MAD-CTI - Multi-Agent Cyber Threat Intelligence{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section style="padding: 6rem 0; text-align: center; background: var(--gradient-dark);">
+    <div class="container">
+        <h1
+            style="font-size: 3.5rem; margin-bottom: 1.5rem; background: var(--gradient-primary); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;">
+            🛡️ MAD-CTI
+        </h1>
+        <h2 style="font-size: 2rem; color: var(--color-text-secondary); margin-bottom: 2rem; font-weight: 400;">
+            Multi-Agent Dark Web Cyber Threat Intelligence
+        </h2>
+        <p style="font-size: 1.25rem; color: var(--color-text-tertiary); max-width: 800px; margin: 0 auto 3rem;">
+            Advanced AI-powered platform for analyzing dark web threats using a sophisticated multi-agent framework.
+            Detect hacks, malware, and vulnerabilities with cutting-edge machine learning.
+        </p>
+
+        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+            <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Get Started</a>
+            <a href="{{ url_for('auth.login') }}" class="btn btn-secondary btn-lg">Sign In</a>
+            
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section style="padding: 4rem 0;">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">Platform Features</h2>
+
+        <div class="stats-grid">
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🤖</div>
+                <h3>Multi-Agent System</h3>
+                <p class="text-muted">
+                    6 specialized AI agents work together: Parser, NLP Analyst, Enricher, Graph Builder, Scorer, and
+                    Classifier
+                </p>
+            </div>
+
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                <h3>Threat Classification</h3>
+                <p class="text-muted">
+                    Automatically categorize threats into Hack, Malware, and Vulnerability with confidence scoring
+                </p>
+            </div>
+
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                <h3>Advanced Analytics</h3>
+                <p class="text-muted">
+                    Interactive dashboards with line graphs, pie charts, and real-time threat intelligence visualization
+                </p>
+            </div>
+
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🌐</div>
+                <h3>Dark Web Focused</h3>
+                <p class="text-muted">
+                    Specialized in analyzing dark web communications and OSINT data for cyber threat intelligence
+                </p>
+            </div>
+
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">🔍</div>
+                <h3>IOC Extraction</h3>
+                <p class="text-muted">
+                    Automatically extract IPs, domains, hashes, CVEs, and other indicators of compromise
+                </p>
+            </div>
+
+            <div class="card card-glass">
+                <div style="font-size: 3rem; margin-bottom: 1rem;">📈</div>
+                <h3>Predictive Intelligence</h3>
+                <p class="text-muted">
+                    Machine learning models for threat prediction and severity scoring
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Agent Modules Section -->
+<section style="padding: 4rem 0; background: var(--color-bg-secondary);">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 2.5rem; margin-bottom: 3rem;">Agent Specifications</h2>
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem;">
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🔍 Parser Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Extracts IOCs including IPs, domains, URLs, file hashes, CVEs, and cryptocurrency addresses from
+                        raw text data.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🧠 NLP Analyst Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Performs entity recognition, keyword extraction, sentiment analysis, and threat categorization
+                        using natural language processing.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">💎 Enricher Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Enriches IOCs with threat intelligence, reputation data, and contextual information from external
+                        sources.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🕸️ Graph Builder Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Constructs knowledge graphs showing relationships between entities, IOCs, and threat actors.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">⚖️ Scorer Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Calculates comprehensive threat scores and severity levels based on multiple factors and
+                        indicators.</p>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h3 class="card-title">🎯 Classifier Agent</h3>
+                </div>
+                <div class="card-body">
+                    <p>Classifies threats into Hack, Malware, or Vulnerability categories with confidence scoring.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- CTA Section -->
+<section style="padding: 4rem 0; text-align: center;">
+    <div class="container">
+        <h2 style="font-size: 2.5rem; margin-bottom: 1.5rem;">Ready to Secure Your Organization?</h2>
+        <p style="font-size: 1.25rem; color: var(--color-text-secondary); margin-bottom: 2rem;">
+            Start analyzing dark web threats with our advanced multi-agent platform
+        </p>
+        <a href="{{ url_for('auth.register') }}" class="btn btn-primary btn-lg">Create Free Account</a>
+    </div>
+</section>
+{% endblock %}

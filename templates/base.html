@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="MAD-CTI - Multi-Agent Dark Web Cyber Threat Intelligence Analysis Platform">
+    <title>{% block title %}MAD-CTI - Cyber Threat Intelligence{% endblock %}</title>
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    <!-- Chart.js for visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="navbar-content">
+                <a href="{{ url_for('main.index') }}" class="navbar-brand">
+                    MAD-CTI
+                </a>
+                
+                <ul class="navbar-menu">
+                    {% if current_user.is_authenticated %}
+                        {% if current_user.is_admin %}
+                            <li><a href="{{ url_for('admin.dashboard') }}" {% if request.endpoint == 'admin.dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                            <li><a href="{{ url_for('admin.users') }}" {% if request.endpoint == 'admin.users' %}class="active"{% endif %}>Users</a></li>
+                            <li><a href="{{ url_for('admin.reports') }}" {% if request.endpoint == 'admin.reports' %}class="active"{% endif %}>Reports</a></li>
+                            <li><a href="{{ url_for('admin.analytics') }}" {% if request.endpoint == 'admin.analytics' %}class="active"{% endif %}>Analytics</a></li>
+                        {% else %}
+                            <li><a href="{{ url_for('main.dashboard') }}" {% if request.endpoint == 'main.dashboard' %}class="active"{% endif %}>Dashboard</a></li>
+                            <li><a href="{{ url_for('main.upload') }}" {% if request.endpoint == 'main.upload' %}class="active"{% endif %}>Upload Data</a></li>
+                        {% endif %}
+                        
+                        <li><a href="{{ url_for('auth.logout') }}" class="btn btn-sm btn-danger">Logout ({{ current_user.username }})</a></li>
+                    {% else %}
+                        <li><a href="{{ url_for('auth.login') }}">Login</a></li>
+                        <li><a href="{{ url_for('auth.register') }}" class="btn btn-sm btn-primary">Register</a></li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+            <div class="container" style="margin-top: 2rem;">
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ category if category in ['success', 'danger', 'warning', 'info'] else 'info' }}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer style="margin-top: 4rem; padding: 2rem 0; border-top: 1px solid var(--color-border); text-align: center; color: var(--color-text-tertiary);">
+        <div class="container">
+            <p>&copy; 2025 MAD-CTI - Multi-Agent Dark Web Cyber Threat Intelligence Platform</p>
+            <p style="font-size: 0.875rem; margin-top: 0.5rem;">Powered by Advanced AI Agents | Securing the Digital Frontier</p>
+        </div>
+    </footer>
+
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,277 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Analysis Results</h1>
+        <p class="text-muted">{{ upload.original_filename }} - {{ stats.total }} records analyzed</p>
+    </div>
+
+    <!-- Statistics Overview -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Threats</div>
+            <div class="stat-value">{{ stats.total }}</div>
+            <div class="stat-change text-muted">Records analyzed</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Hack Attempts</div>
+            <div class="stat-value" style="color: var(--color-hack);">{{ stats.hack }}</div>
+            <div class="stat-change text-muted">{{ ((stats.hack / stats.total * 100) if stats.total > 0 else 0)|round(1)
+                }}%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Malware Detected</div>
+            <div class="stat-value" style="color: var(--color-malware);">{{ stats.malware }}</div>
+            <div class="stat-change text-muted">{{ ((stats.malware / stats.total * 100) if stats.total > 0 else
+                0)|round(1) }}%</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Vulnerabilities</div>
+            <div class="stat-value" style="color: var(--color-vulnerability);">{{ stats.vulnerability }}</div>
+            <div class="stat-change text-muted">{{ ((stats.vulnerability / stats.total * 100) if stats.total > 0 else
+                0)|round(1) }}%</div>
+        </div>
+    </div>
+
+    <!-- Visualization Charts -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 2rem;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Threat Type Distribution</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="threatTypeChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Severity Levels</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Detailed Threat Records -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">Detailed Threat Analysis</h3>
+        </div>
+        <div class="card-body">
+            <!-- Filter Controls -->
+            <div style="display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap;">
+                <button class="btn btn-sm btn-secondary filter-btn active" data-filter="all">All ({{ stats.total
+                    }})</button>
+                <button class="btn btn-sm btn-secondary filter-btn" data-filter="hack">Hack ({{ stats.hack }})</button>
+                <button class="btn btn-sm btn-secondary filter-btn" data-filter="malware">Malware ({{ stats.malware
+                    }})</button>
+                <button class="btn btn-sm btn-secondary filter-btn" data-filter="vulnerability">Vulnerability ({{
+                    stats.vulnerability }})</button>
+                <button class="btn btn-sm btn-secondary filter-btn" data-filter="critical">Critical ({{ stats.critical
+                    }})</button>
+            </div>
+
+            <!-- Threat Cards -->
+            <div id="threatContainer" style="display: grid; gap: 1rem; max-height: 800px; overflow-y: auto;">
+                {% for threat in threats %}
+                <div class="threat-card" data-type="{{ threat.threat_type }}"
+                    data-severity="{{ threat.severity_level }}" style="padding: 1.5rem; background: var(--color-bg-tertiary); border-radius: var(--radius-md); 
+                         border-left: 4px solid 
+                         {% if threat.threat_type == 'hack' %}var(--color-hack)
+                         {% elif threat.threat_type == 'malware' %}var(--color-malware)
+                         {% else %}var(--color-vulnerability){% endif %};">
+
+                    <!-- Header -->
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                            <span class="badge badge-{{ threat.threat_type }}">{{ threat.threat_type.upper() }}</span>
+                            <span class="badge badge-{{ threat.severity_level }}">{{ threat.severity_level.upper()
+                                }}</span>
+                            <span class="badge"
+                                style="background: rgba(160, 100, 255, 0.2); color: var(--color-primary-light);">
+                                {{ (threat.confidence_score * 100)|round(1) }}% confidence
+                            </span>
+                        </div>
+                        <span class="text-muted" style="font-size: 0.875rem;">
+                            ID: #{{ threat.id }}
+                        </span>
+                    </div>
+
+                    <!-- Content -->
+                    <div style="margin-bottom: 1rem;">
+                        <p style="color: var(--color-text-secondary); line-height: 1.6;">
+                            {{ threat.raw_text[:500] }}{% if threat.raw_text|length > 500 %}...{% endif %}
+                        </p>
+                    </div>
+
+                    <!-- Details -->
+                    <div
+                        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1rem; padding-top: 1rem; border-top: 1px solid var(--color-border);">
+                        {% set entities = threat.get_entities() %}
+                        {% if entities %}
+                        <div>
+                            <strong style="font-size: 0.875rem; color: var(--color-text-tertiary);">Entities:</strong>
+                            <div style="margin-top: 0.25rem;">
+                                {% for entity_type, entity_list in entities.items() %}
+                                {% for entity in entity_list[:3] %}
+                                <span
+                                    style="display: inline-block; padding: 0.25rem 0.5rem; background: var(--color-bg-primary); border-radius: var(--radius-sm); font-size: 0.75rem; margin-right: 0.25rem; margin-top: 0.25rem;">
+                                    {{ entity }}
+                                </span>
+                                {% endfor %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% set keywords = threat.get_keywords() %}
+                        {% if keywords %}
+                        <div>
+                            <strong style="font-size: 0.875rem; color: var(--color-text-tertiary);">Keywords:</strong>
+                            <div style="margin-top: 0.25rem;">
+                                {% for keyword in keywords[:5] %}
+                                <span
+                                    style="display: inline-block; padding: 0.25rem 0.5rem; background: var(--color-bg-primary); border-radius: var(--radius-sm); font-size: 0.75rem; margin-right: 0.25rem; margin-top: 0.25rem;">
+                                    {{ keyword }}
+                                </span>
+                                {% endfor %}
+                            </div>
+                        </div>
+                        {% endif %}
+
+                        {% set iocs = threat.get_ioc_data() %}
+                        {% if iocs %}
+                        <div>
+                            <strong style="font-size: 0.875rem; color: var(--color-text-tertiary);">IOCs:</strong>
+                            <div style="margin-top: 0.25rem; font-size: 0.875rem; color: var(--color-text-secondary);">
+                                {% if iocs.get('ipv4') %}IPs: {{ iocs.ipv4|length }}<br>{% endif %}
+                                {% if iocs.get('domain') %}Domains: {{ iocs.domain|length }}<br>{% endif %}
+                                {% if iocs.get('cve') %}CVEs: {{ iocs.cve|length }}{% endif %}
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Threat Type Chart
+    const threatTypeCtx = document.getElementById('threatTypeChart').getContext('2d');
+    new Chart(threatTypeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Hack', 'Malware', 'Vulnerability'],
+            datasets: [{
+                data: [{{ stats.hack }}, {{ stats.malware }}, {{ stats.vulnerability }}],
+        backgroundColor: [
+        'rgba(255, 60, 100, 0.8)',
+        'rgba(255, 140, 60, 0.8)',
+        'rgba(180, 100, 255, 0.8)'
+    ],
+        borderColor: [
+        'rgba(255, 60, 100, 1)',
+        'rgba(255, 140, 60, 1)',
+        'rgba(180, 100, 255, 1)'
+    ],
+        borderWidth: 2
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#b0b0b0',
+                    font: { family: 'Inter' }
+                }
+            }
+        }
+    }
+    });
+
+    // Severity Chart
+    const severityCtx = document.getElementById('severityChart').getContext('2d');
+    new Chart(severityCtx, {
+        type: 'bar',
+        data: {
+            labels: ['Critical', 'High', 'Medium', 'Low'],
+            datasets: [{
+                label: 'Count',
+                data: [{{ stats.critical }}, {{ stats.high }}, {{ stats.medium }}, {{ stats.low }}],
+        backgroundColor: [
+        'rgba(255, 60, 60, 0.8)',
+        'rgba(255, 140, 60, 0.8)',
+        'rgba(255, 200, 60, 0.8)',
+        'rgba(80, 200, 120, 0.8)'
+    ],
+        borderColor: [
+        'rgba(255, 60, 60, 1)',
+        'rgba(255, 140, 60, 1)',
+        'rgba(255, 200, 60, 1)',
+        'rgba(80, 200, 120, 1)'
+    ],
+        borderWidth: 2
+            }]
+        },
+        options: {
+        responsive: true,
+        plugins: {
+            legend: { display: false }
+        },
+        scales: {
+            y: {
+                beginAtZero: true,
+                ticks: { color: '#808080' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            },
+            x: {
+                ticks: { color: '#808080' },
+                grid: { color: 'rgba(255, 255, 255, 0.1)' }
+            }
+        }
+    }
+    });
+
+    // Filter functionality
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const threatCards = document.querySelectorAll('.threat-card');
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const filter = btn.dataset.filter;
+
+            // Update active button
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+
+            // Filter cards
+            threatCards.forEach(card => {
+                if (filter === 'all') {
+                    card.style.display = 'block';
+                } else if (filter === 'critical') {
+                    card.style.display = card.dataset.severity === 'critical' ? 'block' : 'none';
+                } else {
+                    card.style.display = card.dataset.type === filter ? 'block' : 'none';
+                }
+            });
+        });
+    });
+</script>
+{% endblock %}

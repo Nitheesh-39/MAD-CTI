@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Data - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 800px; margin-top: 2rem; margin-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Upload Threat Data</h1>
+        <p class="text-muted">Upload CSV files containing dark web or OSINT threat intelligence data</p>
+    </div>
+
+    <div class="card card-glass">
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('main.upload') }}" enctype="multipart/form-data">
+                <div class="form-group">
+                    <label class="form-label">Select CSV File</label>
+                    <div class="file-upload">
+                        <input type="file" name="file" id="file" class="file-upload-input" accept=".csv" required>
+                        <label for="file" class="file-upload-label">
+                            <span style="font-size: 3rem;">📁</span>
+                            <div>
+                                <strong>Click to select CSV file</strong>
+                                <p class="text-muted" style="margin-top: 0.5rem;">or drag and drop here</p>
+                            </div>
+                        </label>
+                    </div>
+                    <p class="text-muted" style="margin-top: 0.5rem; font-size: 0.875rem;">
+                        Maximum file size: 16MB | Supported format: CSV
+                    </p>
+                </div>
+
+                <div id="fileInfo"
+                    style="display: none; margin-top: 1rem; padding: 1rem; background: var(--color-bg-tertiary); border-radius: var(--radius-md);">
+                    <strong>Selected file:</strong> <span id="fileName"></span>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" style="margin-top: 1.5rem;">
+                    Upload and Analyze
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Instructions -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">📋 CSV Format Requirements</h3>
+        </div>
+        <div class="card-body">
+            <p>Your CSV file should contain threat intelligence data with the following columns (at minimum):</p>
+            <ul style="margin-top: 1rem; color: var(--color-text-secondary);">
+                <li><strong>text</strong> or <strong>content</strong> - The main threat description/message</li>
+                <li><strong>source</strong> (optional) - Source of the data (darkweb, osint, etc.)</li>
+                <li><strong>timestamp</strong> (optional) - When the threat was observed</li>
+                <li><strong>url</strong> (optional) - Source URL</li>
+            </ul>
+            <p style="margin-top: 1rem;">
+                Don't have data? <a href="{{ url_for('api.download_sample_csv') }}" class="text-primary">Download our
+                    sample CSV</a> with 200 pre-generated threat records.
+            </p>
+        </div>
+    </div>
+
+    <!-- Multi-Agent Pipeline Info -->
+    <div class="card"
+        style="margin-top: 2rem; background: rgba(160, 100, 255, 0.05); border-color: var(--color-primary);">
+        <div class="card-header">
+            <h3 class="card-title">🤖 Multi-Agent Processing Pipeline</h3>
+        </div>
+        <div class="card-body">
+            <p>Your data will be processed through our advanced multi-agent framework:</p>
+            <div style="display: grid; gap: 1rem; margin-top: 1rem;">
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">1️⃣</span>
+                    <div>
+                        <strong>Parser Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Extracts IOCs (IPs, domains, hashes, CVEs)
+                        </p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">2️⃣</span>
+                    <div>
+                        <strong>NLP Analyst Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Entity recognition and keyword extraction</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">3️⃣</span>
+                    <div>
+                        <strong>Enricher Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Enriches IOCs with threat intelligence</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">4️⃣</span>
+                    <div>
+                        <strong>Graph Builder Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Constructs knowledge graphs</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">5️⃣</span>
+                    <div>
+                        <strong>Scorer Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Calculates threat severity scores</p>
+                    </div>
+                </div>
+                <div style="display: flex; align-items: center; gap: 1rem;">
+                    <span style="font-size: 2rem;">6️⃣</span>
+                    <div>
+                        <strong>Classifier Agent</strong>
+                        <p class="text-muted" style="font-size: 0.875rem;">Classifies as Hack, Malware, or Vulnerability
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const fileInput = document.getElementById('file');
+    const fileInfo = document.getElementById('fileInfo');
+    const fileName = document.getElementById('fileName');
+
+    fileInput.addEventListener('change', function (e) {
+        if (e.target.files.length > 0) {
+            const file = e.target.files[0];
+            fileName.textContent = file.name + ' (' + (file.size / 1024).toFixed(2) + ' KB)';
+            fileInfo.style.display = 'block';
+        }
+    });
+</script>
+{% endblock %}

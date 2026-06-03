@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}Login - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width: 500px; margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="card card-glass">
+        <div class="card-header text-center">
+            <h2 class="card-title" style="font-size: 2rem; margin-bottom: 0.5rem;">Welcome Back</h2>
+            <p class="text-muted">Sign in to access MAD-CTI</p>
+        </div>
+
+        <div class="card-body">
+            <form method="POST" action="{{ url_for('auth.login') }}">
+                <div class="form-group">
+                    <label for="username" class="form-label">Username</label>
+                    <input type="text" id="username" name="username" class="form-control"
+                        placeholder="Enter your username" required autofocus>
+                </div>
+
+                <div class="form-group">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" id="password" name="password" class="form-control"
+                        placeholder="Enter your password" required>
+                </div>
+
+                <div class="form-group" style="display: flex; align-items: center; gap: 0.5rem;">
+                    <input type="checkbox" id="remember" name="remember" style="width: auto;">
+                    <label for="remember" class="form-label" style="margin-bottom: 0;">Remember me</label>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100" style="margin-top: 1rem;">
+                    Sign In
+                </button>
+            </form>
+        </div>
+
+        <div class="card-footer" style="justify-content: center;">
+            <p class="text-muted">
+                Don't have an account?
+                <a href="{{ url_for('auth.register') }}" class="text-primary">Register here</a>
+            </p>
+        </div>
+    </div>
+
+    <!-- Demo Credentials -->
+    <div class="card"
+        style="margin-top: 2rem; background: rgba(160, 100, 255, 0.1); border-color: var(--color-primary);">
+        <div class="card-body text-center">
+           
+            <p><strong>Admin:</strong> username: <code>admin</code> | password: <code>admin123</code></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

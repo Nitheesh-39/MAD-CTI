@@ -1,0 +1,231 @@
+{% extends "base.html" %}
+
+{% block title %}Admin Dashboard - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Admin Dashboard</h1>
+        <p class="text-muted">System Overview and Analytics</p>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">{{ stats.total_users }}</div>
+            <div class="stat-change text-muted">Registered accounts</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Uploads</div>
+            <div class="stat-value">{{ stats.total_uploads }}</div>
+            <div class="stat-change text-muted">CSV files processed</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Total Threats</div>
+            <div class="stat-value">{{ stats.total_threats }}</div>
+            <div class="stat-change text-muted">Records analyzed</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Critical Threats</div>
+            <div class="stat-value" style="color: var(--color-critical);">{{ stats.critical_count }}</div>
+            <div class="stat-change text-muted">High priority items</div>
+        </div>
+    </div>
+
+    <!-- Threat Distribution -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-top: 2rem;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Threat Type Distribution</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="threatTypeChart"></canvas>
+            </div>
+            <div class="card-footer">
+                <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                    <div>
+                        <span class="badge badge-hack">Hack: {{ stats.hack_count }}</span>
+                    </div>
+                    <div>
+                        <span class="badge badge-malware">Malware: {{ stats.malware_count }}</span>
+                    </div>
+                    <div>
+                        <span class="badge badge-vulnerability">Vulnerability: {{ stats.vulnerability_count }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">Recent Activity</h3>
+            </div>
+            <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+                {% if recent_logs %}
+                {% for log in recent_logs[:10] %}
+                <div
+                    style="padding: 0.75rem; margin-bottom: 0.5rem; background: var(--color-bg-tertiary); border-radius: var(--radius-sm); border-left: 3px solid var(--color-primary);">
+                    <div style="display: flex; justify-content: space-between; align-items: start;">
+                        <div>
+                            <strong>{{ log.action.replace('_', ' ').title() }}</strong>
+                            <p class="text-muted" style="font-size: 0.875rem; margin-top: 0.25rem;">{{ log.details }}
+                            </p>
+                        </div>
+                        <span class="text-muted" style="font-size: 0.75rem; white-space: nowrap;">
+                            {{ log.timestamp.strftime('%H:%M') }}
+                        </span>
+                    </div>
+                </div>
+                {% endfor %}
+                {% else %}
+                <p class="text-muted text-center">No recent activity</p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">User Management</h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Uploads</th>
+                        <th>Last Login</th>
+                        <th>Registered</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td><strong>{{ user.username }}</strong></td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                            <span class="badge badge-critical">Admin</span>
+                            {% else %}
+                            <span class="badge badge-low">User</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.uploads|length }}</td>
+                        <td class="text-muted">
+                            {{ user.last_login.strftime('%Y-%m-%d %H:%M') if user.last_login else 'Never' }}
+                        </td>
+                        <td class="text-muted">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Recent Uploads -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">Recent Data Uploads</h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Filename</th>
+                        <th>User</th>
+                        <th>Records</th>
+                        <th>Status</th>
+                        <th>Upload Date</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for upload in uploads[:20] %}
+                    <tr>
+                        <td>{{ upload.id }}</td>
+                        <td><strong>{{ upload.original_filename }}</strong></td>
+                        <td>{{ upload.user.username }}</td>
+                        <td>{{ upload.row_count }}</td>
+                        <td>
+                            {% if upload.processing_status == 'completed' %}
+                            <span class="badge badge-low">Completed</span>
+                            {% elif upload.processing_status == 'processing' %}
+                            <span class="badge badge-medium">Processing</span>
+                            {% elif upload.processing_status == 'failed' %}
+                            <span class="badge badge-critical">Failed</span>
+                            {% else %}
+                            <span class="badge badge-high">Pending</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ upload.upload_date.strftime('%Y-%m-%d %H:%M') }}</td>
+                        <td>
+                            {% if upload.processing_status == 'completed' %}
+                            <a href="{{ url_for('main.view_results', upload_id=upload.id) }}"
+                                class="btn btn-sm btn-primary">View Results</a>
+                            {% elif upload.processing_status == 'pending' %}
+                            <a href="{{ url_for('main.process_upload', upload_id=upload.id) }}"
+                                class="btn btn-sm btn-secondary">Process</a>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Threat Type Distribution Chart
+    const threatTypeCtx = document.getElementById('threatTypeChart').getContext('2d');
+    new Chart(threatTypeCtx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Hack', 'Malware', 'Vulnerability'],
+            datasets: [{
+                data: [{{ stats.hack_count }}, {{ stats.malware_count }}, {{ stats.vulnerability_count }}],
+        backgroundColor: [
+        'rgba(255, 60, 100, 0.8)',
+        'rgba(255, 140, 60, 0.8)',
+        'rgba(180, 100, 255, 0.8)'
+    ],
+        borderColor: [
+        'rgba(255, 60, 100, 1)',
+        'rgba(255, 140, 60, 1)',
+        'rgba(180, 100, 255, 1)'
+    ],
+        borderWidth: 2
+            }]
+        },
+        options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                position: 'bottom',
+                labels: {
+                    color: '#b0b0b0',
+                    font: {
+                        size: 12,
+                        family: 'Inter'
+                    }
+                }
+            }
+        }
+    }
+    });
+</script>
+{% endblock %}

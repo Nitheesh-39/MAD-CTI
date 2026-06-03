@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}Analytics - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">Analytics & Visualizations</h1>
+        <p class="text-muted">Comprehensive threat intelligence analysis and reporting</p>
+    </div>
+
+    <!-- Timeline Chart -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">📈 Threat Timeline (Last 30 Days)</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="timelineChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Distribution Charts -->
+    <div
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 2rem; margin-bottom: 2rem;">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">🎯 Threat Classification</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="classificationChart"></canvas>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title">⚠️ Severity Distribution</h3>
+            </div>
+            <div class="card-body">
+                <canvas id="severityChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- IOC Statistics -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">🔍 Indicators of Compromise (IOCs)</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="iocChart" style="max-height: 300px;"></canvas>
+        </div>
+    </div>
+
+    <!-- Top Keywords -->
+    <div class="card" style="margin-bottom: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">🔤 Top Threat Keywords</h3>
+        </div>
+        <div class="card-body">
+            <canvas id="keywordsChart" style="max-height: 400px;"></canvas>
+        </div>
+    </div>
+
+    <!-- System Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-label">Total Threats Analyzed</div>
+            <div class="stat-value" id="totalThreats">0</div>
+            <div class="stat-change text-muted">All time</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">IP Addresses</div>
+            <div class="stat-value" id="totalIPs">0</div>
+            <div class="stat-change text-muted">Unique IOCs</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Domains</div>
+            <div class="stat-value" id="totalDomains">0</div>
+            <div class="stat-change text-muted">Unique IOCs</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">CVEs Detected</div>
+            <div class="stat-value" id="totalCVEs">0</div>
+            <div class="stat-change text-muted">Vulnerabilities</div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Fetch analytics data
+    fetch('/api/analytics/data')
+        .then(response => response.json())
+        .then(data => {
+            console.log('Analytics data:', data);
+
+            // Update statistics
+            document.getElementById('totalThreats').textContent = data.total_threats || 0;
+            document.getElementById('totalIPs').textContent = data.ioc_statistics?.ip_addresses || 0;
+            document.getElementById('totalDomains').textContent = data.ioc_statistics?.domains || 0;
+            document.getElementById('totalCVEs').textContent = data.ioc_statistics?.cves || 0;
+
+            // Timeline Chart
+            const timelineData = data.threat_timeline || [];
+            const timelineCtx = document.getElementById('timelineChart').getContext('2d');
+            new Chart(timelineCtx, {
+                type: 'line',
+                data: {
+                    labels: timelineData.map(d => d.date),
+                    datasets: [
+                        {
+                            label: 'Hack',
+                            data: timelineData.map(d => d.hack),
+                            borderColor: 'rgba(255, 60, 100, 1)',
+                            backgroundColor: 'rgba(255, 60, 100, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Malware',
+                            data: timelineData.map(d => d.malware),
+                            borderColor: 'rgba(255, 140, 60, 1)',
+                            backgroundColor: 'rgba(255, 140, 60, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Vulnerability',
+                            data: timelineData.map(d => d.vulnerability),
+                            borderColor: 'rgba(180, 100, 255, 1)',
+                            backgroundColor: 'rgba(180, 100, 255, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                color: '#b0b0b0',
+                                font: { family: 'Inter' }
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Classification Chart (Pie)
+            const threatDist = data.threat_distribution || {};
+            const classificationCtx = document.getElementById('classificationChart').getContext('2d');
+            new Chart(classificationCtx, {
+                type: 'pie',
+                data: {
+                    labels: ['Hack', 'Malware', 'Vulnerability'],
+                    datasets: [{
+                        data: [threatDist.hack || 0, threatDist.malware || 0, threatDist.vulnerability || 0],
+                        backgroundColor: [
+                            'rgba(255, 60, 100, 0.8)',
+                            'rgba(255, 140, 60, 0.8)',
+                            'rgba(180, 100, 255, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 60, 100, 1)',
+                            'rgba(255, 140, 60, 1)',
+                            'rgba(180, 100, 255, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#b0b0b0',
+                                font: { family: 'Inter' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Severity Chart (Doughnut)
+            const severityDist = data.severity_distribution || {};
+            const severityCtx = document.getElementById('severityChart').getContext('2d');
+            new Chart(severityCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Critical', 'High', 'Medium', 'Low'],
+                    datasets: [{
+                        data: [
+                            severityDist.critical || 0,
+                            severityDist.high || 0,
+                            severityDist.medium || 0,
+                            severityDist.low || 0
+                        ],
+                        backgroundColor: [
+                            'rgba(255, 60, 60, 0.8)',
+                            'rgba(255, 140, 60, 0.8)',
+                            'rgba(255, 200, 60, 0.8)',
+                            'rgba(80, 200, 120, 0.8)'
+                        ],
+                        borderColor: [
+                            'rgba(255, 60, 60, 1)',
+                            'rgba(255, 140, 60, 1)',
+                            'rgba(255, 200, 60, 1)',
+                            'rgba(80, 200, 120, 1)'
+                        ],
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#b0b0b0',
+                                font: { family: 'Inter' }
+                            }
+                        }
+                    }
+                }
+            });
+
+            // IOC Statistics Chart (Bar)
+            const iocStats = data.ioc_statistics || {};
+            const iocCtx = document.getElementById('iocChart').getContext('2d');
+            new Chart(iocCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['IP Addresses', 'Domains', 'File Hashes', 'CVEs'],
+                    datasets: [{
+                        label: 'Count',
+                        data: [
+                            iocStats.ip_addresses || 0,
+                            iocStats.domains || 0,
+                            iocStats.file_hashes || 0,
+                            iocStats.cves || 0
+                        ],
+                        backgroundColor: 'rgba(160, 100, 255, 0.8)',
+                        borderColor: 'rgba(160, 100, 255, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        x: {
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+
+            // Top Keywords Chart (Horizontal Bar)
+            const keywords = data.top_keywords || [];
+            const keywordsCtx = document.getElementById('keywordsChart').getContext('2d');
+            new Chart(keywordsCtx, {
+                type: 'bar',
+                data: {
+                    labels: keywords.slice(0, 15).map(k => k.keyword),
+                    datasets: [{
+                        label: 'Frequency',
+                        data: keywords.slice(0, 15).map(k => k.count),
+                        backgroundColor: 'rgba(80, 200, 255, 0.8)',
+                        borderColor: 'rgba(80, 200, 255, 1)',
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { display: false }
+                    },
+                    scales: {
+                        x: {
+                            beginAtZero: true,
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        },
+                        y: {
+                            ticks: { color: '#808080' },
+                            grid: { color: 'rgba(255, 255, 255, 0.1)' }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching analytics data:', error);
+        });
+</script>
+{% endblock %}

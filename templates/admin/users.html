@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}User Management - MAD-CTI{% endblock %}
+
+{% block content %}
+<div class="container" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <div style="margin-bottom: 2rem;">
+        <h1 style="font-size: 2.5rem; margin-bottom: 0.5rem;">User Management</h1>
+        <p class="text-muted">Manage platform users and permissions</p>
+    </div>
+
+    <!-- User Statistics -->
+    <div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+        <div class="stat-card">
+            <div class="stat-label">Total Users</div>
+            <div class="stat-value">{{ users|length }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Admin Users</div>
+            <div class="stat-value">{{ users|selectattr('is_admin')|list|length }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Regular Users</div>
+            <div class="stat-value">{{ users|rejectattr('is_admin')|list|length }}</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-label">Active Today</div>
+            <div class="stat-value">{{ users|selectattr('last_login')|list|length }}</div>
+        </div>
+    </div>
+
+    <!-- Users Table -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">All Users</h3>
+        </div>
+        <div class="table-container">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                        <th>Uploads</th>
+                        <th>Last Login</th>
+                        <th>Registered</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users %}
+                    <tr>
+                        <td>{{ user.id }}</td>
+                        <td>
+                            <strong>{{ user.username }}</strong>
+                            {% if user.id == current_user.id %}
+                            <span class="badge"
+                                style="background: rgba(80, 200, 255, 0.2); color: var(--color-secondary);">You</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.email }}</td>
+                        <td>
+                            {% if user.is_admin %}
+                            <span class="badge badge-critical">Administrator</span>
+                            {% else %}
+                            <span class="badge badge-low">User</span>
+                            {% endif %}
+                        </td>
+                        <td>{{ user.uploads|length }}</td>
+                        <td class="text-muted">
+                            {% if user.last_login %}
+                            {{ user.last_login.strftime('%Y-%m-%d %H:%M') }}
+                            {% else %}
+                            <span class="text-muted">Never</span>
+                            {% endif %}
+                        </td>
+                        <td class="text-muted">{{ user.created_at.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            {% if user.last_login and (now - user.last_login).days < 7 %} <span class="badge badge-low">
+                                Active</span>
+                                {% else %}
+                                <span class="badge badge-medium">Inactive</span>
+                                {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- User Activity Details -->
+    <div class="card" style="margin-top: 2rem;">
+        <div class="card-header">
+            <h3 class="card-title">User Activity Overview</h3>
+        </div>
+        <div class="card-body">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem;">
+                {% for user in users[:10] %}
+                <div style="padding: 1rem; background: var(--color-bg-tertiary); border-radius: var(--radius-md);">
+                    <div
+                        style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                        <div>
+                            <strong>{{ user.username }}</strong>
+                            {% if user.is_admin %}
+                            <span class="badge badge-critical"
+                                style="margin-left: 0.5rem; font-size: 0.7rem;">Admin</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div style="font-size: 0.875rem; color: var(--color-text-secondary);">
+                        <div style="margin-bottom: 0.25rem;">
+                            📊 <strong>{{ user.uploads|length }}</strong> uploads
+                        </div>
+                        <div style="margin-bottom: 0.25rem;">
+                            📧 {{ user.email }}
+                        </div>
+                        <div>
+                            🕒 Last login:
+                            {% if user.last_login %}
+                            {{ user.last_login.strftime('%b %d, %Y') }}
+                            {% else %}
+                            Never
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Set current time for comparison
+    const now = new Date();
+</script>
+{% endblock %}
